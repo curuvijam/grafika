@@ -4,12 +4,22 @@
         Title="RGProject" Height="600" Width="800" 
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF" KeyDown="Window_KeyDown" ResizeMode="NoResize">
     <Grid>
-
-        <!-- The OpenGL control provides a OpenGL drawing surface. -->
-        <sharpGL:OpenGLControl 
-            Name="openGLControl" OpenGLDraw="OpenGLControl_OpenGLDraw" 
-            OpenGLInitialized="OpenGLControl_OpenGLInitialized" Resized="OpenGLControl_Resized"
-            DrawFPS="False" RenderContextType="FBO" FrameRate="60"/>
-
+        <DockPanel>
+            <ToolBarTray DockPanel.Dock="Top">
+                <ToolBar HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label x:Name="translateLeftWall" Content="Translate Left Wall(X-axis)" Height="26" VerticalAlignment="Top"/>
+                    <TextBox Name="translateLeftVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="translateLeftVal_TextChanged"/>
+                    <Label x:Name="rotateRightWall" Content="Rotate Right Wall(Y-axis)" Height="26" VerticalAlignment="Top"/>
+                    <TextBox Name="rotateRightVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="rotateRightVal_TextChanged"/>
+                    <Label x:Name="scaleArrow" Content="Scale of arrow" Height="26" VerticalAlignment="Top"/>
+                    <TextBox Name="scaleArrowVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="scaleArrowVal_TextChanged"/>
+                </ToolBar>
+            </ToolBarTray>
+            <!-- The OpenGL control provides a OpenGL drawing surface. -->
+            <sharpGL:OpenGLControl 
+                Name="openGLControl" OpenGLDraw="OpenGLControl_OpenGLDraw" 
+                OpenGLInitialized="OpenGLControl_OpenGLInitialized" Resized="OpenGLControl_Resized"
+                DrawFPS="False" RenderContextType="FBO" FrameRate="60"/>
+        </DockPanel>
     </Grid>
 </Window>

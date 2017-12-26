@@ -17,6 +17,7 @@ using SharpGL.SceneGraph;
 using SharpGL;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Globalization;
 
 namespace RGProject
 {
@@ -73,14 +74,52 @@ namespace RGProject
         {
             switch (e.Key)
             {
-                case Key.F10: this.Close(); break;
-                case Key.W: m_world.RotationX -= 5.0f; break;
-                case Key.S: m_world.RotationX += 5.0f; break;
-                case Key.A: m_world.RotationY -= 5.0f; break;
-                case Key.D: m_world.RotationY += 5.0f; break;
+                case Key.F4: this.Close(); break;
+                case Key.K: if (m_world.RotationX >= -20.0f)
+                    {
+                        m_world.RotationX -= 5.0f;
+                    }
+                    break;
+                case Key.I: if (m_world.RotationX <= 65.0f)
+                    {
+                        m_world.RotationX += 5.0f;
+                    }
+                    break;
+                case Key.J: m_world.RotationY -= 5.0f; break;
+                case Key.L: m_world.RotationY += 5.0f; break;
                 case Key.Add: m_world.SceneDistance -= 700.0f; break;
                 case Key.Subtract: m_world.SceneDistance += 700.0f; break;
                 
+            }
+        }
+
+        private void translateLeftVal_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float val = float.Parse(translateLeftVal.Text, CultureInfo.InvariantCulture.NumberFormat);
+
+            if (m_world != null)
+            {
+                m_world.TranslateLeftWallX = val;
+            }
+        }
+
+        private void rotateRightVal_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float val = float.Parse(rotateRightVal.Text, CultureInfo.InvariantCulture.NumberFormat);
+
+            if (m_world != null)
+            {
+                m_world.RightWallRotateY = val;
+            }
+        }
+
+        private void scaleArrowVal_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float val = float.Parse(scaleArrowVal.Text, CultureInfo.InvariantCulture.NumberFormat);
+
+            if (m_world != null)
+            {
+                m_world.ScaleArrow = val;
             }
         }
     }
