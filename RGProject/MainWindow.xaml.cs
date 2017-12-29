@@ -75,93 +75,109 @@ namespace RGProject
             switch (e.Key)
             {
                 case Key.F4: this.Close(); break;
-                case Key.K: if (m_world.RotationX >= 5.0f)
+                case Key.K:
+                    if (!m_world.AnimationRunning)
                     {
-                        m_world.RotationX -= 5.0f;
+                        if (m_world.RotationX >= 5.0f)
+                        {
+                            m_world.RotationX -= 5.0f;
+                        }
                     }
                     break;
-                case Key.I: if (m_world.RotationX <= 45.0f)
+                case Key.I:
+                    if (!m_world.AnimationRunning)
                     {
-                        m_world.RotationX += 5.0f;
+                        if (m_world.RotationX <= 45.0f)
+                        {
+                            m_world.RotationX += 5.0f;
+                        }
                     }
                     break;
                 case Key.J:
-                    if (m_world.RotationY >= -85.0f)
-                    {
-                        m_world.RotationY -= 5.0f;
+                    if (!m_world.AnimationRunning) { 
+                        if (m_world.RotationY >= -85.0f)
+                        {
+                            m_world.RotationY -= 5.0f;
+                        }
                     }
                     break;
                 case Key.L:
-                    if (m_world.RotationY <= 85.0f)
+                    if (!m_world.AnimationRunning)
                     {
-                        m_world.RotationY += 5.0f;
+                        if (m_world.RotationY <= 85.0f)
+                        {
+                            m_world.RotationY += 5.0f;
+                        }
                     }
                     break;
-                case Key.Add: m_world.SceneDistance -= 700.0f; break;
-                case Key.Subtract: m_world.SceneDistance += 700.0f; break;
-                case Key.V: m_world.startAnimation(); break;
+                case Key.Add:
+                    if (!m_world.AnimationRunning)
+                    {
+                        m_world.SceneDistance -= 700.0f;
+                    }
+                    break;
+                case Key.Subtract:
+                    if (!m_world.AnimationRunning)
+                    {
+                        m_world.SceneDistance += 700.0f;
+                    }
+                    break;
+                case Key.V:
+                    if (!m_world.AnimationRunning)
+                    {
+                        m_world.startAnimation();
+                    }
+                    break;
                 
-            }
-        }
-
-        private void translateLeftVal_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            float val = float.Parse(translateLeftVal.Text, CultureInfo.InvariantCulture.NumberFormat);
-
-            if (m_world != null)
-            {
-                m_world.TranslateLeftWallX = val;
-            }
-        }
-
-        private void rotateRightVal_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            float val = float.Parse(rotateRightVal.Text, CultureInfo.InvariantCulture.NumberFormat);
-
-            if (m_world != null)
-            {
-                m_world.RightWallRotateY = val;
-            }
-        }
-
-        private void scaleArrowVal_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            float val = float.Parse(scaleArrowVal.Text, CultureInfo.InvariantCulture.NumberFormat);
-
-            if (m_world != null)
-            {
-                m_world.ScaleArrow = val;
             }
         }
 
         private void increaseTrans_Click(object sender, RoutedEventArgs e)
         {
-            m_world.TranslateLeftWallX += 100.0f;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.TranslateLeftWallX += 100.0f;
+            }
         }
 
         private void decreaseTrans_Click(object sender, RoutedEventArgs e)
         {
-            m_world.TranslateLeftWallX -= 100.0f;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.TranslateLeftWallX -= 100.0f;
+            }
         }
 
         private void increaseRotate_Click(object sender, RoutedEventArgs e)
         {
-            m_world.RightWallRotateY += 10.0f;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.RightWallRotateY += 10.0f;
+            }
         }
 
         private void decreaseRotate_Click(object sender, RoutedEventArgs e)
         {
-            m_world.RightWallRotateY -= 10.0f;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.RightWallRotateY -= 10.0f;
+            }
         }
 
         private void increaseScale_Click(object sender, RoutedEventArgs e)
         {
-            m_world.ScaleArrow += 1;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.ScaleArrow += 1;
+            }
         }
 
         private void decreaseScale_Click(object sender, RoutedEventArgs e)
         {
-            m_world.ScaleArrow -= 1;
+            if (!m_world.AnimationRunning)
+            {
+                m_world.ScaleArrow -= 1;
+            }
         }
     }
 }

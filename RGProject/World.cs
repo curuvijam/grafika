@@ -32,6 +32,11 @@ namespace RGProject
         private float translateLeftWallX = 0.0f;
         private float rightWallRotateY = 0.0f;
         private float scaleArrow = 1.0f;
+        private float arrowXTranslate = 0.0f;
+        private float arrowYTranslate = 0.0f;
+        private float arrowZTranslate = 0.0f;
+        private float arrowXRotation = 0.0f;
+        private int arrowCounter = 0;
         private enum TextureObjects { Staza = 0, Podloga, Zid };
         private readonly int m_textureCount = Enum.GetNames(typeof(TextureObjects)).Length;
         private uint[] m_textures = null;
@@ -47,7 +52,18 @@ namespace RGProject
         private DispatcherTimer timer2;
         private DispatcherTimer timer3;
         private DispatcherTimer timer4;
-        private DispatcherTimer timer5;
+
+        public bool AnimationRunning
+        {
+            get
+            {
+                return animationRunning;
+            }
+            set
+            {
+                animationRunning = value;
+            }
+        }
 
         public float RotationY
         {
@@ -134,7 +150,7 @@ namespace RGProject
             gl.ColorMaterial(OpenGL.GL_FRONT, OpenGL.GL_AMBIENT_AND_DIFFUSE);
 
             LoadTextures(gl);
-            SetupLighting(gl);
+            
 
             m_scene.LoadScene();
             m_scene2.LoadScene();
@@ -185,7 +201,7 @@ namespace RGProject
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, difuznaKomponenta);
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_SPOT_CUTOFF, 180.0f);
             gl.Enable(OpenGL.GL_LIGHT0);
-            float[] pozicija = { -700.0f, 1000.0f, 600.0f, 1.0f };
+            float[] pozicija = { -2000.0f, 1500.0f, 0.0f, 1.0f };
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, pozicija);
 
             gl.Enable(OpenGL.GL_NORMALIZE);
@@ -217,17 +233,68 @@ namespace RGProject
 
         }
 
+        public void Udaljavanje(object sender, EventArgs e)
+        {
+            this.SceneDistance += 50;
+            if(this.m_sceneDistance==3200)
+            {
+                timer3.Stop();
+                this.timer4 = new DispatcherTimer();
+                timer4.Interval = TimeSpan.FromMilliseconds(20);
+                timer4.Tick += new EventHandler(IspaljivanjeStrele);
+                timer4.Start();
+                
+            }
+        }
+
+        public void IspaljivanjeStrele(object sender, EventArgs e)
+        {
+            
+            arrowYTranslate += 200;
+            if(arrowYTranslate>4000)
+            {
+                arrowYTranslate = -250.0f;
+                arrowCounter+=1;
+            }
+            if (arrowCounter == 10)
+            {
+                timer4.Stop();
+                ResetParameters();
+                animationRunning = false;
+            }
+        }
+
+        public void ResetParameters()
+        {
+            m_xRotation = 0.0f;
+            m_yRotation = 0.0f;
+            m_sceneDistance = 4000.0f;
+            arrowCounter = 0;
+            arrowXRotation = 0;
+            arrowYTranslate = 0;
+            arrowZTranslate = 0;
+        }
+
         public void PrelazakUPticiju(object sender, EventArgs e)
         {
             this.m_xRotation += 5;
             if(m_xRotation == 90)
             {
                 timer2.Stop();
+                this.timer3 = new DispatcherTimer();
+                timer3.Interval = TimeSpan.FromMilliseconds(20);
+                timer3.Tick += new EventHandler(Udaljavanje);
+                timer3.Start();
             }
         }
 
         public void startAnimation()
         {
+            animationRunning = true;
+            arrowXTranslate = 500.0f;
+            arrowYTranslate = -250.0f;
+            arrowZTranslate = 1000.0f;
+            arrowXRotation = 90.0f;
             this.timer1 = new DispatcherTimer();
             timer1.Interval = TimeSpan.FromMilliseconds(20);
             timer1.Tick += new EventHandler(PomeranjeKamereUZamak);
@@ -259,8 +326,12 @@ namespace RGProject
                 //iscrtavanje modela strele
                 gl.PushMatrix();
                 {
+                    
                     gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_MODULATE);
-                    gl.Translate(-500.0f, 250f, -1250.0f);
+                    gl.Color(1, 0, 0);
+                    gl.Translate(-500.0f+arrowXTranslate, 250f+arrowYTranslate, -1250.0f+arrowZTranslate);
+                    gl.Rotate(0.0f , 0.0f , 0.0f + arrowXRotation);
+                    
                     gl.Scale(50 * scaleArrow, 50 * scaleArrow, 50 * scaleArrow);
                     m_scene2.Draw();
                 }
@@ -339,6 +410,17 @@ namespace RGProject
                     cube.Render(gl, SharpGL.SceneGraph.Core.RenderMode.Render);
                 }
                 gl.PopMatrix();
+
+                /*gl.PushMatrix();
+                {
+                    Cube cube = new Cube();
+                    gl.Translate(0.0f, 1200.0f,0.0f);
+                    gl.Scale(10, 10, 10);
+                    gl.Color(1, 0, 0);
+                    cube.Render(gl, SharpGL.SceneGraph.Core.RenderMode.Render);
+                }
+                gl.PopMatrix();*/
+                
             }
             gl.PopMatrix();
 
@@ -360,6 +442,7 @@ namespace RGProject
 
             }
             reflektor(gl);
+            SetupLighting(gl);
             gl.PopMatrix();
             gl.PopMatrix();
             gl.Flush();
@@ -376,7 +459,7 @@ namespace RGProject
             gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_SPOT_DIRECTION, smer);
             gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_SPOT_CUTOFF, 45.0f);
             gl.Enable(OpenGL.GL_LIGHT1);
-            float[] pozicija = { 0f, 200f, 0f, 1.0f };
+            float[] pozicija = { 0f, 1200f, 0f, 1.0f };
             gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_POSITION, pozicija);
 
         }
