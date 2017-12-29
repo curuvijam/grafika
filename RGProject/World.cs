@@ -11,9 +11,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
+using System.Windows.Threading;
 
 namespace RGProject
 {
+
+    public enum TextureFilterMode
+    {
+        Nearest,
+        Linear,
+        NearestMipmapNearest,
+        NearestMipmapLinear,
+        LinearMipmapNearest,
+        LinearMipmapLinear
+    };
     public class World : IDisposable
     {
         private float m_xRotation = 0.0f;
@@ -21,15 +32,22 @@ namespace RGProject
         private float translateLeftWallX = 0.0f;
         private float rightWallRotateY = 0.0f;
         private float scaleArrow = 1.0f;
-        private enum TextureObjects { Staza = 0, Podloga, Zid};
+        private enum TextureObjects { Staza = 0, Podloga, Zid };
         private readonly int m_textureCount = Enum.GetNames(typeof(TextureObjects)).Length;
         private uint[] m_textures = null;
-        private string[] m_textureFiles = { "..//..//images//staza.jpg", "..//..//images//Podloga.jpg", "..//..//images//Zid.jpg" };
+        private string[] m_textureFiles = { "..//..//images//staza.jpg", "..//..//images//Podloga.jpg", "..//..//images//metal.jpg" };
         private AssimpScene m_scene;
         private AssimpScene m_scene2;
         private float m_sceneDistance = 4000.0f;
         private int m_height;
         private int m_width;
+        private TextureFilterMode m_selectedMode = TextureFilterMode.Nearest;
+        private bool animationRunning = false;
+        private DispatcherTimer timer1;
+        private DispatcherTimer timer2;
+        private DispatcherTimer timer3;
+        private DispatcherTimer timer4;
+        private DispatcherTimer timer5;
 
         public float RotationY
         {
@@ -51,7 +69,7 @@ namespace RGProject
 
         public float RightWallRotateY
         {
-            get { return rightWallRotateY;  }
+            get { return rightWallRotateY; }
             set { rightWallRotateY = value; }
         }
 
@@ -99,23 +117,23 @@ namespace RGProject
         }
 
 
+        /// <summary>
+        ///  Iscrtavanje OpenGL kontrole.
+        /// </summary>
         public void Initialize(OpenGL gl)
         {
             gl.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            gl.ShadeModel(OpenGL.GL_FLAT);
+
+            //gl.ShadeModel(OpenGL.GL_SMOOTH);
             gl.Enable(OpenGL.GL_DEPTH_TEST);
             gl.Enable(OpenGL.GL_CULL_FACE);
+            //gl.FrontFace(OpenGL.GL_CW);
+            gl.Enable(OpenGL.GL_LIGHTING);
 
             gl.Enable(OpenGL.GL_COLOR_MATERIAL);
             gl.ColorMaterial(OpenGL.GL_FRONT, OpenGL.GL_AMBIENT_AND_DIFFUSE);
 
-            gl.Enable(OpenGL.GL_TEXTURE_2D);
-            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);      
-            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
-            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_S, OpenGL.GL_REPEAT);
-            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_T, OpenGL.GL_REPEAT);
-            gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
-
+            LoadTextures(gl);
             SetupLighting(gl);
 
             m_scene.LoadScene();
@@ -123,8 +141,18 @@ namespace RGProject
             m_scene.Initialize();
             m_scene2.Initialize();
 
-            //Ucitavanje slika i kreiranje tekstura
+
+        }
+
+        private void LoadTextures(OpenGL gl)
+        {
+
+
+            gl.Enable(OpenGL.GL_TEXTURE_2D);
+            gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
             gl.GenTextures(m_textureCount, m_textures);
+
+
             for (int i = 0; i < m_textureCount; ++i)
             {
                 // Pridruzi teksturu odgovarajucem identifikatoru
@@ -141,32 +169,24 @@ namespace RGProject
 
                 gl.Build2DMipmaps(OpenGL.GL_TEXTURE_2D, (int)OpenGL.GL_RGBA8, image.Width, image.Height, OpenGL.GL_BGRA, OpenGL.GL_UNSIGNED_BYTE, imageData.Scan0);
                 gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);		// Linear Filtering
-                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);		// Linear Filtering
+                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);      // Linear Filtering
                 gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_S, OpenGL.GL_REPEAT);
                 gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_T, OpenGL.GL_REPEAT);
-                gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
-
                 image.UnlockBits(imageData);
                 image.Dispose();
             }
-
         }
 
         private void SetupLighting(OpenGL gl)
         {
             float[] ambijentalnaKomponenta = { 0.3f, 0.3f, 0.3f, 1.0f };
-            float[] difuznaKomponenta = { 0.7f, 0.7f, 0.7f, 1.0f };
-            float[] lightPos0 = { -600.0f, 300.0f, 650.0f };
-            //pridruzivanje ambijentalne i difuzne komponente svetlosnom izvoru LIGHT0
-            gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, lightPos0);
+            float[] difuznaKomponenta = { 1.0f, 1.0f, 0.0f, 1.0f };
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_AMBIENT, ambijentalnaKomponenta);
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, difuznaKomponenta);
-
-            //podesavanje cuttoff-a na 180 da bi svetlost bila tackasta
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_SPOT_CUTOFF, 180.0f);
-
-            gl.Enable(OpenGL.GL_LIGHTING);
             gl.Enable(OpenGL.GL_LIGHT0);
+            float[] pozicija = { -700.0f, 1000.0f, 600.0f, 1.0f };
+            gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_POSITION, pozicija);
 
             gl.Enable(OpenGL.GL_NORMALIZE);
         }
@@ -175,19 +195,49 @@ namespace RGProject
         {
             m_width = width;
             m_height = height;
-            
-            gl.MatrixMode(OpenGL.GL_PROJECTION);
+            gl.Viewport(0, 0, m_width, m_height);//preko celog ekrana
+            gl.MatrixMode(OpenGL.GL_PROJECTION);      // selektuj Projection Matrix
             gl.LoadIdentity();
-            gl.Perspective(50f, (double)width / height, 1f, 20000f);
+            gl.Perspective(45f, (double)width / (double)height, 0.5f, 20000f);
             gl.MatrixMode(OpenGL.GL_MODELVIEW);
-            gl.Viewport(0, 0, m_width, m_height);
             gl.LoadIdentity();
 
+        }
+        public void PomeranjeKamereUZamak(object sender, EventArgs e)
+        {
+            this.SceneDistance -= 50;
+            if(this.SceneDistance==-100)
+            {
+                timer1.Stop();
+                this.timer2 = new DispatcherTimer();
+                timer2.Interval = TimeSpan.FromMilliseconds(20);
+                timer2.Tick += new EventHandler(PrelazakUPticiju);
+                timer2.Start();
+            }
+
+        }
+
+        public void PrelazakUPticiju(object sender, EventArgs e)
+        {
+            this.m_xRotation += 5;
+            if(m_xRotation == 90)
+            {
+                timer2.Stop();
+            }
+        }
+
+        public void startAnimation()
+        {
+            this.timer1 = new DispatcherTimer();
+            timer1.Interval = TimeSpan.FromMilliseconds(20);
+            timer1.Tick += new EventHandler(PomeranjeKamereUZamak);
+            timer1.Start();
+            animationRunning = true;
         }
 
         public void Draw(OpenGL gl)
         {
-            
+
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
             gl.MatrixMode(OpenGL.GL_MODELVIEW);
             gl.Viewport(0, 0, m_width, m_height);
@@ -196,7 +246,8 @@ namespace RGProject
                 gl.Translate(0.0f, 0.0f, -m_sceneDistance);
                 gl.Rotate(m_xRotation, 1.0f, 0.0f, 0.0f);
                 gl.Rotate(m_yRotation, 0.0f, 1.0f, 0.0f);
-                gl.LookAt(0f, 100.0f, -200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+                gl.LookAt(0f, 50f, 200f, 0f, 0f, 0f, 0f, 1.0f, 0f);
+
                 //Iscrtavanje modela zamka
                 gl.PushMatrix();
                 {
@@ -217,17 +268,28 @@ namespace RGProject
                 //Iscrtavanje podloge
                 gl.PushMatrix();
                 {
-                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Podloga]);
+
                     gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
                     gl.Translate(0.0f, -5.0f, 0.0f);
-                    gl.Color(1f, 1f, 1f);
+                    gl.MatrixMode(OpenGL.GL_TEXTURE);
+                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Podloga]);
+                    gl.PushMatrix();
+                    gl.MatrixMode(OpenGL.GL_MODELVIEW);
                     gl.Begin(OpenGL.GL_QUADS);
+                    gl.Normal(0.0f, 1.0f, 0.0f);
+                    gl.TexCoord(0.0f, 0.0f);
                     gl.Vertex(-1500.0f, 0.0f, 1500.0f);
+                    gl.TexCoord(0.0f, 1.0f);
                     gl.Vertex(1500.0f, 0.0f, 1500.0f);
+                    gl.TexCoord(1.0f, 1.0f);
                     gl.Vertex(1500.0f, 0.0f, -1500.0f);
+                    gl.TexCoord(1.0f, 0.0f);
                     gl.Vertex(-1500.0f, 0.0f, -1500.0f);
-                    gl.End();                   
+                    gl.End();
+                    gl.MatrixMode(OpenGL.GL_TEXTURE);
                 }
+                gl.PopMatrix();
+                gl.MatrixMode(OpenGL.GL_MODELVIEW);
                 gl.PopMatrix();
 
                 //Iscrtavanje staze
@@ -237,24 +299,30 @@ namespace RGProject
                     gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Staza]);
                     gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
                     gl.Begin(OpenGL.GL_QUADS);
-                    gl.Vertex(-150.0f, 0.0f, 1500.0f);//gore levo
-                    gl.Vertex(150.0f, 0.0f, 1500.0f);//gore desno
-                    gl.Vertex(150.0f, 0.0f, -500.0f);//dole desno
-                    gl.Vertex(-150.0f, 0.0f, -500.0f);//dole levo
+                    gl.Normal(0.0f, -1.0f, 0.0f);
+                    gl.TexCoord(0.0f, 0.0f);
+                    gl.Vertex(-300.0f, 0.0f, 1500.0f);//gore levo
+                    gl.TexCoord(1.0f, 0.0f);
+                    gl.Vertex(300.0f, 0.0f, 1500.0f);//gore desno
+                    gl.TexCoord(1.0f, 1.0f);
+                    gl.Vertex(300.0f, 0.0f, -500.0f);//dole desno
+                    gl.TexCoord(0.0f, 1.0f);
+                    gl.Vertex(-300.0f, 0.0f, -500.0f);//dole levo
                     gl.End();
                 }
                 gl.PopMatrix();
-                
+
                 //iscrtavanje desnog zida
                 gl.PushMatrix();
                 {
-                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Zid]);
-                    gl.TexEnv(OpenGL.GL_TEXTURE_ENV, OpenGL.GL_TEXTURE_ENV_MODE, OpenGL.GL_DECAL);
-                    gl.Rotate(0, 0+rightWallRotateY, 0);
-                    gl.Translate(1200.0f, 300f, 0.0f);
-                    gl.Scale(100, 300, 1500);
-                    gl.Color(0f, 0f, 1f);
                     Cube cube = new Cube();
+                    gl.Rotate(0, 0 + rightWallRotateY, 0);
+                    gl.Translate(1200.0f, 300f, 0.0f);
+                    gl.Scale(1, 300, 1500);
+                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Zid]);
+
+                    gl.Color(0f, 0f, 1f);
+
                     cube.Render(gl, SharpGL.SceneGraph.Core.RenderMode.Render);
                 }
                 gl.PopMatrix();
@@ -262,19 +330,20 @@ namespace RGProject
                 //iscrtavanje levog zida
                 gl.PushMatrix();
                 {
-                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Zid]);
-                    gl.Translate(-1200.0f+translateLeftWallX, 300f, 0.0f);
-                    gl.Scale(100, 300, 1500);
-                    gl.Color(1f, 0f, 1f);
                     Cube cube = new Cube();
+                    gl.Translate(-1200.0f + translateLeftWallX, 300f, 0.0f);
+                    gl.Scale(1, 300, 1500);
+                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, m_textures[(int)TextureObjects.Zid]);
+                    gl.Color(1f, 0f, 1f);
+
                     cube.Render(gl, SharpGL.SceneGraph.Core.RenderMode.Render);
                 }
                 gl.PopMatrix();
-            }           
+            }
             gl.PopMatrix();
 
             //Iscrtavanje teksta
-            gl.MatrixMode(OpenGL.GL_MODELVIEW);
+            
             gl.Viewport(m_width / 2, 0, m_width / 2, m_height / 2);
             {
                 gl.PushMatrix();
@@ -290,8 +359,26 @@ namespace RGProject
                 gl.DrawText(300, 30, 0.0f, 255.0f, 255.0f, "Arial", 14, "___________");
 
             }
+            reflektor(gl);
+            gl.PopMatrix();
             gl.PopMatrix();
             gl.Flush();
+        }
+
+        public void reflektor(OpenGL gl)
+        {
+
+            float[] ambijentalnaKomponenta = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float[] difuznaKomponenta = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float[] smer = { 0f, -1f, 0f };
+            gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_AMBIENT, ambijentalnaKomponenta);
+            gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_DIFFUSE, difuznaKomponenta);
+            gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_SPOT_DIRECTION, smer);
+            gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_SPOT_CUTOFF, 45.0f);
+            gl.Enable(OpenGL.GL_LIGHT1);
+            float[] pozicija = { 0f, 200f, 0f, 1.0f };
+            gl.Light(OpenGL.GL_LIGHT1, OpenGL.GL_POSITION, pozicija);
+
         }
 
 

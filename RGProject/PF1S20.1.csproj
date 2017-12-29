@@ -133,8 +133,9 @@
     <Content Include="Dependencies\SharpGL.dll" />
     <Content Include="Dependencies\SharpGL.SceneGraph.dll" />
     <Content Include="Dependencies\SharpGL.WPF.dll" />
+    <Resource Include="images\metal.jpg" />
+    <Resource Include="images\ograda.bmp" />
     <Resource Include="images\Podloga.jpg" />
-    <Resource Include="images\Zid.jpg" />
     <Resource Include="images\staza.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

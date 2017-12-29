@@ -8,11 +8,17 @@
             <ToolBarTray DockPanel.Dock="Top">
                 <ToolBar HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Label x:Name="translateLeftWall" Content="Translate Left Wall(X-axis)" Height="26" VerticalAlignment="Top"/>
-                    <TextBox Name="translateLeftVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="translateLeftVal_TextChanged"/>
+                    <TextBox Name="translateLeftVal" Width="33" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="translateLeftVal_TextChanged"/>
+                    <Button Name="increaseTrans" Width="40" Margin="0" Content="+" Click="increaseTrans_Click"></Button>
+                    <Button Name="decreaseTrans" Width="40" Margin="0" Content="-" Click="decreaseTrans_Click"></Button>
                     <Label x:Name="rotateRightWall" Content="Rotate Right Wall(Y-axis)" Height="26" VerticalAlignment="Top"/>
-                    <TextBox Name="rotateRightVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="rotateRightVal_TextChanged"/>
+                    <TextBox Name="rotateRightVal" Width="41" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="rotateRightVal_TextChanged"/>
+                    <Button Name="increaseRotate" Width="40" Margin="0" Content="+" Click="increaseRotate_Click"></Button>
+                    <Button Name="decreaseRotate" Width="40" Margin="0" Content="-" Click="decreaseRotate_Click"></Button>
                     <Label x:Name="scaleArrow" Content="Scale of arrow" Height="26" VerticalAlignment="Top"/>
-                    <TextBox Name="scaleArrowVal" Width="120" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="scaleArrowVal_TextChanged"/>
+                    <TextBox Name="scaleArrowVal" Width="64" Margin="0" Text="" VerticalAlignment="Center" HorizontalAlignment="Center" TextChanged="scaleArrowVal_TextChanged"/>
+                    <Button Name="increaseScale" Width="40" Margin="0" Content="+" Click="increaseScale_Click"></Button>
+                    <Button Name="decreaseScale" Width="40" Margin="0" Content="-" Click="decreaseScale_Click"></Button>
                 </ToolBar>
             </ToolBarTray>
             <!-- The OpenGL control provides a OpenGL drawing surface. -->

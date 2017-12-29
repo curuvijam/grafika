@@ -75,20 +75,31 @@ namespace RGProject
             switch (e.Key)
             {
                 case Key.F4: this.Close(); break;
-                case Key.K: if (m_world.RotationX >= -20.0f)
+                case Key.K: if (m_world.RotationX >= 5.0f)
                     {
                         m_world.RotationX -= 5.0f;
                     }
                     break;
-                case Key.I: if (m_world.RotationX <= 65.0f)
+                case Key.I: if (m_world.RotationX <= 45.0f)
                     {
                         m_world.RotationX += 5.0f;
                     }
                     break;
-                case Key.J: m_world.RotationY -= 5.0f; break;
-                case Key.L: m_world.RotationY += 5.0f; break;
+                case Key.J:
+                    if (m_world.RotationY >= -85.0f)
+                    {
+                        m_world.RotationY -= 5.0f;
+                    }
+                    break;
+                case Key.L:
+                    if (m_world.RotationY <= 85.0f)
+                    {
+                        m_world.RotationY += 5.0f;
+                    }
+                    break;
                 case Key.Add: m_world.SceneDistance -= 700.0f; break;
                 case Key.Subtract: m_world.SceneDistance += 700.0f; break;
+                case Key.V: m_world.startAnimation(); break;
                 
             }
         }
@@ -121,6 +132,36 @@ namespace RGProject
             {
                 m_world.ScaleArrow = val;
             }
+        }
+
+        private void increaseTrans_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.TranslateLeftWallX += 100.0f;
+        }
+
+        private void decreaseTrans_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.TranslateLeftWallX -= 100.0f;
+        }
+
+        private void increaseRotate_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.RightWallRotateY += 10.0f;
+        }
+
+        private void decreaseRotate_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.RightWallRotateY -= 10.0f;
+        }
+
+        private void increaseScale_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.ScaleArrow += 1;
+        }
+
+        private void decreaseScale_Click(object sender, RoutedEventArgs e)
+        {
+            m_world.ScaleArrow -= 1;
         }
     }
 }
